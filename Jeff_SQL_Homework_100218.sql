@@ -64,7 +64,7 @@ select first_name, last_name, email from customer
 	join country on city.country_id = country.country_id
 	where country.country = 'canada';
 -- * 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as _family_ films.
-
+select title from film join film_category using(film_id) where category_id in (select category_id from category where name = 'family'); 
 -- * 7e. Display the most frequently rented movies in descending order.
 
 -- * 7f. Write a query to display how much business, in dollars, each store brought in.
