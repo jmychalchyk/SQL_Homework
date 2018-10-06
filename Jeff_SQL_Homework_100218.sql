@@ -66,11 +66,16 @@ select first_name, last_name, email from customer
 -- * 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as _family_ films.
 select title from film join film_category using(film_id) where category_id in (select category_id from category where name = 'family'); 
 -- * 7e. Display the most frequently rented movies in descending order.
-
+select a.title, count(a.title) as 'Rental Count' 
+from rental join (select inventory.inventory_id,film.title from inventory join film using(film_id)) as a 
+using(inventory_id) 
+group by a.title 
+order by count(a.title) desc;
 -- * 7f. Write a query to display how much business, in dollars, each store brought in.
-
+select store_id, concat('$',FORMAT(sum(a.stafftot), 'C', 'en-us'))  as 'Total' from staff join 
+(select staff_id, sum(amount) as stafftot from payment group by staff_id) as a using(staff_id) group by store_id;
 -- * 7g. Write a query to display for each store its store ID, city, and country.
-
+store city country
 -- * 7h. List the top five genres in gross revenue in descending order. (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
 
 -- * 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
