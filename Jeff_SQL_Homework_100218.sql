@@ -1,7 +1,5 @@
 use sakila;
 
--- ## Instructions
-
 -- * 1a. Display the first and last names of all actors from the table `actor`.
 Select first_name,last_name from actor;
 -- * 1b. Display the first and last name of each actor in a single column in upper case letters. Name the column `Actor Name`.
@@ -75,11 +73,35 @@ order by count(a.title) desc;
 select store_id, concat('$',FORMAT(sum(a.stafftot), 'C', 'en-us'))  as 'Total' from staff join 
 (select staff_id, sum(amount) as stafftot from payment group by staff_id) as a using(staff_id) group by store_id;
 -- * 7g. Write a query to display for each store its store ID, city, and country.
-store city country
+select store_id,b.city,b.country 
+from store join  (select a.city, a.country, address_id 
+				from address join (select country,city,city_id 
+									from city join country using(country_id)) as a using(city_id)) as b using(address_id);
 -- * 7h. List the top five genres in gross revenue in descending order. (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+-- category --																							category_id, name, last_update
+-- film_category --																			film_id, 	category_id, last_update
+-- inventory--																inventory_id, 	film_id, store_id, last_update
+-- rental--										rental_id, rental_date, 	inventory_id, customer_id, return_date, staff_id, last_update
+-- payment--payment_id, customer_id, staff_id, 	rental_id, amount, payment_date, last_update
+select  name, sum(c.amount) as Total from category join 
+(select category_id, b.amount from film_category join
+(select film_id, a.amount from inventory join 
+(select inventory_id, amount from rental join payment using(rental_id)) as a 
+using(inventory_id)) as b
+using(film_id))as c
+using(category_id) group by name order by sum(c.amount) desc limit 5 ;
 
 -- * 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
+create view vwtop5genre as
+select  name, sum(c.amount) as Total from category join 
+(select category_id, b.amount from film_category join
+(select film_id, a.amount from inventory join 
+(select inventory_id, amount from rental join payment using(rental_id)) as a 
+using(inventory_id)) as b
+using(film_id))as c
+using(category_id) group by name order by sum(c.amount) desc limit 5 ;
 
 -- * 8b. How would you display the view that you created in 8a?
-
+Select * from vwtop5genre;
 -- * 8c. You find that you no longer need the view `top_five_genres`. Write a query to delete it.
+drop view vwtop5genre;
